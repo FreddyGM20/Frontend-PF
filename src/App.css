@@ -1,38 +1,104 @@
-.App {
-  text-align: center;
-}
-
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+.chatBox{
   display: flex;
   flex-direction: column;
-  align-items: center;
+  padding: 30px 10px;
+  gap: 20px;
+  overflow-y: scroll;
+  margin: 10px 0;
+}
+
+.chatBox::-webkit-scrollbar{
+  background: transparent;
+  width: 10px;
+}
+
+.chatBox::-webkit-scrollbar-thumb{
+  background: rgba(98,226,255,1);
+  width: 10px;
+  border-radius: 20px;
+}
+
+.chat{
+  width: 300px;
+  height: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.contentChat1{
+  display: flex;
+  width: 100%;
+  justify-content: start;
+}
+
+.contentChat2{
+  display: flex;
+  width: 100%;
+  justify-content: end;
+}
+
+#chat1{
+  border-top-right-radius: 20px;
+  border-top-left-radius: 20px;
+  border-bottom-right-radius: 20px;
+  background-color: white;
+}
+
+#chat2{
+  border-top-right-radius: 20px;
+  border-top-left-radius: 20px;
+  border-bottom-left-radius: 20px;
+  background: linear-gradient(90deg, rgba(124,230,255,1) 0%, rgba(109,228,255,1) 35%, rgba(98,226,255,1) 100%);
+}
+
+.btn:hover{
+  transform: scale(1.04);
+  transform: .2s ease;
+}
+
+p{
+  margin: 0;
+}
+
+.contentButon{
+  width: 100%;
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px ;
+}
+
+.btn-primary{
+  
+}
+
+/* overlay */
+
+.overlay{
+  position: fixed; /* Sit on top of the page content */
+  display: flex; /* Hidden by default */
   justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  align-items: center;
+  width: 100%; /* Full width (cover the whole page) */
+  height: 100%; /* Full height (cover the whole page) */
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0,0,0,0.5); /* Black background with opacity */
+  z-index: 2; /* Specify a stack order in case you're using a different order for other elements */
 }
 
-.App-link {
-  color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.boxRegister{
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  gap: 10px;
+  width: 300px;
+  padding: 20px;
+  background-color: white;
+  border-radius: 20px;
+  box-shadow: 10px 10px 34px -15px rgba(0,0,0,0.75);
 }
