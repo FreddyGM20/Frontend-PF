@@ -29,12 +29,14 @@
 
 .contentChat1{
   display: flex;
+  gap: 20px;
   width: 100%;
   justify-content: start;
 }
 
 .contentChat2{
   display: flex;
+  gap: 20px;
   width: 100%;
   justify-content: end;
 }

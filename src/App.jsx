@@ -1,49 +1,66 @@
 import React from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import "./App.css";
 
 const App = () => {
   const URL = "http://25.65.134.189:3000";
-  let [datosPreguntas, setdatosPreguntas] = useState("");
+  let [datosMessages, setdatosMessages] = useState([]);
   let [formData, setFormData] = useState({
-    nombre: '',
-    email: ''
+    nombre: "",
+    email: "",
   });
-  let [datosArray, setdatosArray] = useState([]);
-  let [id, setId] = useState(0);
-  let [VerOverlay, setVerOverlay] = useState(true)
+  let [VerOverlay, setVerOverlay] = useState(true);
+  let [mensajeError, setMensajeError] = useState('');
+  let [chat, setChat] = useState({
+    id: 0,
+    pregunta: '',
+    autor: 'YO',
+    respuestas: []
+  });
 
+  //Primera pregunta
   function getPreguntas() {
     axios.get(`${URL}/preguntas/1`).then((res) => {
-      setdatosPreguntas(res.data.pregunta);
-      setdatosArray(res.data.respuestas);
-      setId(res.data.id);
-      console.log(res);
+      setdatosMessages([...datosMessages, res.data]);
+      console.log(datosMessages);
+      console.log(res)
     });
   }
 
+  //registroChat
   function Register() {
-    console.log(formData)
+    console.log(formData);
     axios.post(`${URL}/registro`, formData).then((res) => {
-      if (res.data.Status === 'Success'){
-        localStorage.setItem('id', res.data.id)
-        setVerOverlay(false)
-        getPreguntas()
-      }
+      if (res.data.Status === "Success") {
+        localStorage.setItem("id", res.data.id);
+        setVerOverlay(false);
+        getPreguntas();
+      }else {
+        document.getElementById('Error').style.display = 'block'
+        setMensajeError(res.data.message)
+      } 
       console.log(res);
     });
   }
 
-  function putRespuestas(resPut) {
+  //Responder
+  const putRespuestas = (resPut, idPregunta) => {
     const respuesta = {
-      id_pregunta: id,
+      id_pregunta: idPregunta,
       respuesta: resPut.respuesta,
-      iduser: localStorage.getItem('id'),
+      iduser: localStorage.getItem("id"),
     };
+    console.log(datosMessages)
     if (resPut.siguiente_pregunta === null) {
-      setdatosPreguntas("¡Gracias por sus respuestas!");
-      setdatosArray([]);
+      setdatosMessages([
+        ...datosMessages,
+        { id: 0,
+          pregunta: resPut.respuesta,
+          autor: 'YO',
+          respuestas: []
+        },
+      ]);
     } else {
       axios
         .put(`${URL}/respuestas`, respuesta, {
@@ -51,40 +68,65 @@ const App = () => {
         })
         .then((res) => {
           console.log(res);
-          setdatosPreguntas(res.data.pregunta);
-          setdatosArray(res.data.respuestas);
-          setId(res.data.id);
+          const datos = {
+            id: 0,
+            pregunta: resPut.respuesta,
+            autor: 'YO',
+            respuestas: []
+          }
+          setdatosMessages([...datosMessages, datos,res.data]);
+          console.log(datosMessages);
         });
+    }
+  }
+
+  const addChat = () => {
+    if (chat.pregunta !== ''){
+      setdatosMessages([...datosMessages, chat])
+      setChat((data) => ({
+        ...data,
+        pregunta: '',
+      }));
+      const limpiar = document.getElementById('text')
+      limpiar.value = ""
     }
   }
 
   return (
     <>
-      { VerOverlay === true &&
+      {VerOverlay === true && (
         <div className="overlay">
           <div className="boxRegister">
             <h1 style={{ textAlign: "center" }}>Registrarse</h1>
-            <input type="text" placeholder="Nombre*" className="form-control" onChange={ ({ target }) => {
-                setFormData((data)=> ({
+            <input
+              type="text"
+              placeholder="Nombre*"
+              className="form-control"
+              onChange={({ target }) => {
+                setFormData((data) => ({
                   ...data,
-                  nombre: target.value
-                }))
-              }} />
+                  nombre: target.value,
+                }));
+              }}
+            />
             <input
               type="email"
               placeholder="Email*"
               className="form-control"
-              onChange={ ({ target }) => {
-                setFormData((data)=> ({
+              onChange={({ target }) => {
+                setFormData((data) => ({
                   ...data,
-                  email: target.value
-                }))
+                  email: target.value,
+                }));
               }}
             />
-            <button className="btn btn-success" onClick={()=> Register()}>Confirmar</button>
+            <button className="btn btn-success" onClick={() => Register()}>
+              Confirmar
+            </button>
+            <p style={{margin: '5px', color: 'red', display: 'none', textAlign: 'center'}} id='Error'>{ mensajeError }</p>
           </div>
         </div>
-      }
+      )}
       <div
         className="content"
         style={{
@@ -104,30 +146,35 @@ const App = () => {
         >
           <div className="chatBox" style={{ height: "100%" }}>
             {/* chat */}
-            {}
-            <div className="contentChat1">
-              <div className="chat" id="chat1">
-                <p style={{ color: "rgba(25,25,25,1)" }}> {datosPreguntas} </p>
-                <span className="contentButon">
-                  {datosArray.map((el) => (
-                    <button
-                      className="btn btn-primary"
-                      key={el.respuesta}
-                      onClick={() => putRespuestas(el)}
-                    >
-                      {el.respuesta}
-                    </button>
-                  ))}
-                </span>
-              </div>
-            </div>
-            {false && (
-              <div className="contentChat2">
-                <div className="chat" id="chat2">
-                  <p style={{ color: "rgba(25,25,25,1)" }}></p>
+            {datosMessages.map((element) => (
+              <div
+                className={`${
+                  element.autor === "BOT" ? "contentChat1" : "contentChat2"
+                }`}
+              >
+                <div className="chat" id={`${
+                  element.autor === "BOT" ? "chat1" : "chat2"
+                }`}>
+                  <p
+                    style={{ color: "rgba(25,25,25,1)" }}
+                    key={element.pregunta}
+                  >
+                    {element.pregunta}
+                  </p>
+                  <span className="contentButon">
+                    {element.respuestas.map((el) => (
+                      <button
+                        className="btn btn-primary"
+                        key={el.respuesta}
+                        onClick={() => putRespuestas(el, element.id)}
+                      >
+                        {el.respuesta}
+                      </button>
+                    ))}
+                  </span>
                 </div>
               </div>
-            )}
+            ))}
           </div>
           <div
             className="options"
@@ -138,6 +185,12 @@ const App = () => {
               className="form-control"
               id="text"
               style={{ borderRadius: "30px" }}
+              onChange={({ target }) => {
+                setChat((data) => ({
+                  ...data,
+                  pregunta: target.value,
+                }));
+              }}
             />
             <button
               className="btn btn-secondary"
@@ -150,6 +203,8 @@ const App = () => {
                 fontWeight: "700",
                 border: "0",
               }}
+              onClick={()=> addChat()}
+              autoFocus
             >
               Enviar
             </button>
