@@ -1,5 +1,5 @@
 import React from "react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import axios from "axios";
 import "./App.css";
 
@@ -18,11 +18,13 @@ const App = () => {
     autor: 'YO',
     respuestas: []
   });
+  let [idAnterior, setIdAnterior] = useState(0)
 
   //Primera pregunta
   function getPreguntas() {
     axios.get(`${URL}/preguntas/1`).then((res) => {
       setdatosMessages([...datosMessages, res.data]);
+      setIdAnterior(res.data.id)
       console.log(datosMessages);
       console.log(res)
     });
@@ -46,6 +48,8 @@ const App = () => {
 
   //Responder
   const putRespuestas = (resPut, idPregunta) => {
+    setIdAnterior(datosMessages[datosMessages.length - 1].id)
+    console.log(idAnterior)
     const respuesta = {
       id_pregunta: idPregunta,
       respuesta: resPut.respuesta,
@@ -80,6 +84,7 @@ const App = () => {
     }
   }
 
+  //addchat
   const addChat = () => {
     if (chat.pregunta !== ''){
       setdatosMessages([...datosMessages, chat])
@@ -91,6 +96,15 @@ const App = () => {
       limpiar.value = ""
     }
   }
+
+  //pregunta anterior
+  // const prevQ = () => {
+  //   axios.put(`${URL}/respuestas/${idAnterior}`)
+  //   .then((res) => {
+  //     setdatosMessages([...datosMessages, res.data]);
+  //     console.log(res)
+  //   });
+  // }
 
   return (
     <>
@@ -171,6 +185,10 @@ const App = () => {
                         {el.respuesta}
                       </button>
                     ))}
+                    {/* {
+                      idAnterior !== 0 &&
+                      <button className="btn btn-primary" onClick={prevQ()}>Pregunta anterior</button>
+                    } */}
                   </span>
                 </div>
               </div>
